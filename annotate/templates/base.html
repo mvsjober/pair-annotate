@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load staticfiles %}
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MediaEval interest</title>
+    
+    <!-- Bootstrap -->
+    <link href="{% static 'annotate/css/bootstrap.min.css' %}" rel="stylesheet">
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+	<!-- Brand and toggle get grouped for better mobile display -->
+	<div class="navbar-header">
+	  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+	  </button>
+	  <a class="navbar-brand" href="#">Video</a>
+	</div>
+
+	<!-- Collect the nav links, forms, and other content for toggling -->
+	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+{% if user.is_authenticated %}
+	  <p class="navbar-brand"> <span class="text-success"><strong>Annotations done: {{ annotation_count }}</strong></span> - {{ user.username }} </p>
+{% endif %}
+	  <ul class="nav navbar-nav navbar-right">
+{% if user.is_authenticated %}
+            <li><a href="/video/accounts/logout/?next=/video/">Logout</a></li>
+{% else %}
+            <li><a href="/video/register/">Register</a></li>
+{% endif %}
+	  </ul>
+	</div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container-fluid">
+      {% block content%}
+      {% endblock %}
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="{% static 'annotate/js/jquery.min.js' %}"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{% static 'annotate/js/bootstrap.min.js' %}"></script>
+
+    <script>
+      var shot1_played = false;
+      var shot2_played = false;
+
+      var setPlayed = function(video) {
+        if (video == 1) shot1_played = true;
+        if (video == 2) shot2_played = true;
+
+        if (shot1_played && shot2_played) {
+          $("#video1_button").prop("disabled", false);
+          $("#video2_button").prop("disabled", false);
+        }
+      }
+
+      $("#video_shot1").on("play", function() { setPlayed(1); });
+      $("#video_shot2").on("play", function() { setPlayed(2); });
+
+      $("#video_shot1").on("pause", function() { $("#video_shot1").load() });
+      $("#video_shot2").on("pause", function() { $("#video_shot2").load() });
+
+      var disableButton = function(button_id, buttonText) {
+          $(button_id).attr({
+              disabled: 'disabled',
+              value: buttonText || 'Please, wait ...'
+          });
+      }
+
+      var submitAndVote = function(votefor) {
+          $("#form").append('<input type="hidden" name="' + votefor + '" value="' + votefor +'" />');
+          disableButton("#video1_button", votefor == "shot1" ? "Voting shot 1 ..." : null);
+          disableButton("#video2_button", votefor == "shot2" ? "Voting shot 2 ..." : null);
+          disableButton("#stop", votefor == "stop" ? "Stopping ..." : null);
+          $("#form").submit();
+      }
+
+      $("#video1_button").click(function() { submitAndVote("shot1"); });
+      $("#video2_button").click(function() { submitAndVote("shot2"); });
+      $("#stop").click(function() { submitAndVote("stop"); });
+    </script>
+  </body>
+</html>

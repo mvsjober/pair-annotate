@@ -1,0 +1,9 @@
+/tmp
+*~
+/env/
+*.pyc
+/db.sqlite3
+/annotate/static/annotate/videos
+/data/
+/logs/
+/core/settings_local.py

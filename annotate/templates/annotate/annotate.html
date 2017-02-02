@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title%}Annotate{% endblock %}
+
+{% block content%}
+
+{% load staticfiles %}
+      <form style="margin-top:30px" action="{% url 'annotate:annotate' %}" method="POST" id="form">
+
+      <input id="stop" type="submit" class="pull-right btn btn-danger btn-lg" 
+             style="margin-right:30px" name="stop" value="Stop annotating"/>
+
+      <h1>MediaEval 2016</h1>
+
+      <h2>Which video is more interesting?</h2>
+
+      <p>Please watch both videos before voting.</p>
+
+	{% csrf_token %}
+
+	<div class="row">
+	  <div class="col-xs-6 text-center">
+	    <video src="{% static 'annotate/' %}{{ shot1 }}"
+                   poster="{% static 'annotate/shot1.png' %}"
+		   controls preload="auto" width=800 id="video_shot1">
+	      <a href="{% static 'annotate/' %}{{ shot1 }}">{{ shot1 }}</a>
+	    </video>
+	    <br />
+	    <input id="video1_button" disabled="disabled"
+                   class="btn btn-primary btn-lg" type="submit"
+		   name="shot1" value="More interesting" 
+                   data-loading-text="Please wait ..."
+		   style="margin-top:30px"/>
+	  </div>
+	  <div class="col-xs-6 text-center">
+	    <video src="{% static 'annotate/' %}{{ shot2 }}"
+                   poster="{% static 'annotate/shot2.png' %}"
+		   controls preload="auto" width=800 id="video_shot2">
+	      <a href="{% static 'annotate/' %}{{ shot2 }}">{{ shot2 }}</a>
+	    </video>
+	    <br />
+
+	    <input id="video2_button" disabled="disabled"
+                   class="btn btn-primary btn-lg" type="submit"
+		   name="shot2" value="More interesting"
+		   style="margin-top:30px"/>
+	  </div>
+	</div>
+
+	<input type="hidden" name="shot1_id" value="{{ shot1_id }}" />
+	<input type="hidden" name="shot2_id" value="{{ shot2_id }}" />
+	<input type="hidden" name="pair_id" value="{{ pair_id }}" />
+	
+        <input type="hidden" name="start" value="start" />
+
+      </form>
+
+{% endblock %}

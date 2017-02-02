@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title%}Login{% endblock %}
+
+{% block content%}
+  {% if form.errors %}
+       <div class="alert alert-danger" role="alert">Sorry, that's not
+	 a valid username or password</div> 
+  {% endif %}
+
+      <form action="" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">User name:</label>
+          <input type="text" autofocus="true" class="form-control"
+		 name="username" value="" id="username">
+        </div>
+    
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" class="form-control" name="password"
+		 value="" id="password">
+        </div>
+    
+        <button type="submit" class="btn btn-default">Login</button>
+        <input type="hidden" name="next" value="{{ next|escape }}" />
+      </form>
+
+      <hr />
+      <p><a href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">Login with Facebook</a></p>
+      <p><a href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Login with Twitter</a></p>
+      <!-- <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a></p> -->
+      <hr />
+      <p><a href="/video/register/">Register a new account.</a></p>
+
+{% endblock %}

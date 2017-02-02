@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title%}Annotate{% endblock %}
+
+{% block content%}
+
+{% load staticfiles %}
+<h1>Sorry!</h1>
+
+<h2>Nothing to annotate</h2>
+
+<p>There is nothing to annotate at the moment, all the annotation
+pairs are currently being recalculated!</p>
+
+<a class="btn btn-default" href="{% url 'annotate:annotate' %}" role="button">Try again...</a>
+
+{% endblock %}

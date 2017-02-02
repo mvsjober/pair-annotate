@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+  <form action="" method="post">
+    {% csrf_token %}
+    {{ user_form.as_p }}
+    
+    <hr/>
+
+    {{ annotator_form.as_p }}
+
+    <hr />
+    <div class="form-group">
+      {% if error != None %}
+      <div th:if="${error}" class="alert alert-danger" role="alert">
+	{{ error }}
+      </div>
+      {% endif %}
+      <label for="secret" class="control-label">Secret:</label>
+      <input type="password" class="form-control" name="secret" value="" id="secret" /> 
+      Secret to allow registration. Provided by Mats.
+    </div>
+    <button type="submit" class="btn btn-default">Register</button>
+  </form>
+{% endblock %}
