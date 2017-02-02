@@ -12,14 +12,21 @@
 
       <h1>MediaEval 2016</h1>
 
+{% if modality == 'video' %}
       <h2>Which video is more interesting?</h2>
 
       <p>Please watch both videos before voting.</p>
+{% endif %}
+{% if modality == 'image' %}
+      <h2>Which image is more interesting?</h2>
+{% endif %}
+
 
 	{% csrf_token %}
 
 	<div class="row">
 	  <div class="col-xs-6 text-center">
+{% if modality == 'video' %}
 	    <video src="{% static 'annotate/' %}{{ shot1 }}"
                    poster="{% static 'annotate/shot1.png' %}"
 		   controls preload="auto" width=800 id="video_shot1">
@@ -31,8 +38,19 @@
 		   name="shot1" value="More interesting" 
                    data-loading-text="Please wait ..."
 		   style="margin-top:30px"/>
+{% endif %}
+{% if modality == 'image' %}
+	    <img src="{% static 'annotate/' %}{{ image1 }}"
+		 width=800 id="video_shot1"/>
+	    <br />
+	    <input id="video1_button"
+                   class="btn btn-primary btn-lg" type="submit"
+		   name="shot1" value="More interesting" 
+		   style="margin-top:30px"/>
+{% endif %}
 	  </div>
 	  <div class="col-xs-6 text-center">
+{% if modality == 'video' %}
 	    <video src="{% static 'annotate/' %}{{ shot2 }}"
                    poster="{% static 'annotate/shot2.png' %}"
 		   controls preload="auto" width=800 id="video_shot2">
@@ -45,6 +63,17 @@
 		   name="shot2" value="More interesting"
 		   style="margin-top:30px"/>
 	  </div>
+{% endif %}
+{% if modality == 'image' %}
+	    <img src="{% static 'annotate/' %}{{ image2 }}"
+                 width=800 id="video_shot2"/>
+	    <br />
+
+	    <input id="video2_button"
+                   class="btn btn-primary btn-lg" type="submit"
+		   name="shot2" value="More interesting"
+		   style="margin-top:30px"/>
+{% endif %}
 	</div>
 
 	<input type="hidden" name="shot1_id" value="{{ shot1_id }}" />

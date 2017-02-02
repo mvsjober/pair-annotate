@@ -7,6 +7,7 @@
 {% load staticfiles %}
 
 <div class="jumbotron">
+{% if modality == 'video' %}
 <p class="lead">Thank you for accepting to give some of your time to help us in our research!</p>
 
 <p>We are interested in understanding what makes a video interesting when trying to illustrate a web site. More specifically, our use case involves helping professionals to illustrate a Video on Demand (VOD) web site by selecting some interesting video excerpts for the movies. The video excerpts should be suitable in terms of helping a user to make his/her decision about whether he/she is interested in watching the whole movie.</p>
@@ -20,7 +21,21 @@
 <p>Also, you won’t be able to vote for one video or another before you have watched both of them. On the other hand, you are free to watch them as many times as you feel you need to make your decision.</p>
 
 <p>You will be able to stop the test at any time, just by clicking the <i>stop button</i>. But the more comparisons you do, the more valuable data we will have to conduct our research!</p>
+{% endif %}
+{% if modality == 'image' %}
+<p class="lead">Thank you for accepting to give some of your time to help us in our research!</p>
 
+<p>We are interested in understanding what makes an image interesting when trying to illustrate a web site. More specifically, our use case involves helping professionals to illustrate a Video on Demand (VOD) web site by selecting some interesting frames for the movies. The frames should be suitable in terms of helping a user to make his/her decision about whether he/she is interested in watching a movie.</p>
+
+<p>During this test you will see several pairs of images. You will be asked to make a choice:</p>
+
+<h2>Which of these 2 pictures is more interesting?</h2>
+
+<p>Some pairs will be easier for you to decide than others. But don't worry, there is no good or wrong answers, please follow your feelings.</p>
+
+<p>You will be able to stop the test at any time, just by clicking the <i>stop button</i>. But the more comparisons you do, the more valuable data we will have to conduct our research!</p>
+
+{% endif %}
 <br/>
 <form action="{% url 'annotate:annotate' %}" method="POST">
   {% csrf_token %}

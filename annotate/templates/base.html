@@ -29,7 +29,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
 	  </button>
-	  <a class="navbar-brand" href="#">Video</a>
+	  <a class="navbar-brand" href="#">{{ modality|capfirst }}</a>
 	</div>
 
 	<!-- Collect the nav links, forms, and other content for toggling -->
@@ -39,9 +39,9 @@
 {% endif %}
 	  <ul class="nav navbar-nav navbar-right">
 {% if user.is_authenticated %}
-            <li><a href="/video/accounts/logout/?next=/video/">Logout</a></li>
+            <li><a href="/{{ modality }}/accounts/logout/?next=/{{ modality }}/">Logout</a></li>
 {% else %}
-            <li><a href="/video/register/">Register</a></li>
+            <li><a href="/{{ modality }}/register/">Register</a></li>
 {% endif %}
 	  </ul>
 	</div><!-- /.navbar-collapse -->

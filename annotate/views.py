@@ -49,6 +49,7 @@ def register(request):
         annotator_form = AnnotatorForm()
 
     return render(request, "registration/register.html", {
+        'modality': settings.MEDIAEVAL_MODALITY,
         'user_form': user_form,
         'annotator_form': annotator_form,
         'error': error,
@@ -74,6 +75,7 @@ def register_external(request):
         annotator_form = AnnotatorForm()
 
     return render(request, "registration/register_external.html", {
+        'modality': settings.MEDIAEVAL_MODALITY,
         'annotator_form': annotator_form,
         'error': error,
     })
@@ -109,7 +111,8 @@ def index(request):
         return HttpResponseRedirect(reverse('annotate:register_external'))
 
     return render(request, 'annotate/index.html', 
-                  { 'annotation_count': annotator.annotation_count })
+                  { 'annotation_count': annotator.annotation_count,
+                    'modality': settings.MEDIAEVAL_MODALITY})
 
 #------------------------------------------------------------------------------
 
@@ -185,8 +188,8 @@ def annotate(request):
     #                                      video__annotation_rounds=round)
     unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED, 
                                           video__annotation_rounds__lte=4, 
-                                          video__number__gte=52, 
-                                          video__number__lte=77)
+                                          video__number__gte=0, 
+                                          video__number__lte=24)
     count = len(unannotated)
 
     # Uncomment for normal mode
@@ -202,7 +205,10 @@ def annotate(request):
 
     # if there are none, go to the waiting page
     if count == 0:
-        return render(request, 'annotate/wait.html')
+        return render(request, 'annotate/wait.html',
+                      {
+                          'modality': settings.MEDIAEVAL_MODALITY,
+                      })
 
     selected_index = random.randint(0, count-1)
     selected_pair = unannotated[selected_index]
@@ -219,13 +225,14 @@ def annotate(request):
     basepath = 'videos/links/' + selected_pair.video.filename
 
     shot1video = basepath + '/movies/' + shot1.filename
-    shot1image = basepath + '/images/iframe/' + shot1.image_filename
+    shot1image = basepath + '/images/midframe/' + shot1.image_filename
 
     shot2video = basepath + '/movies/' + shot2.filename
-    shot2image = basepath + '/images/iframe/' + shot2.image_filename
+    shot2image = basepath + '/images/midframe/' + shot2.image_filename
 
     return render(request, 'annotate/annotate.html',
                   { 
+                      'modality': settings.MEDIAEVAL_MODALITY,
                       'shot1' : shot1video,
                       'shot2' : shot2video,
                       'image1' : shot1image,

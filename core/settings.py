@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
-try:
-    from settings_local import *
-except ImportError:
-    pass
+from core.settings_local import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -145,7 +142,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 SESSION_COOKIE_NAME = 'sessionid_' + MEDIAEVAL_MODALITY
 CSRF_COOKIE_NAME = 'csrftoken_' + MEDIAEVAL_MODALITY
 
-MY_APP_PATH = + MEDIAEVAL_MODALITY + '/'
+MY_APP_PATH = MEDIAEVAL_MODALITY + '/'
 
 LOGIN_URL = '/' + MY_APP_PATH + 'accounts/login/'
 LOGIN_REDIRECT_URL = '/' + MY_APP_PATH
