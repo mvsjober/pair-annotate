@@ -37,8 +37,16 @@ class ShotAdmin(admin.ModelAdmin):
 class ShotPairAdmin(admin.ModelAdmin):
     list_display = ('status', 'annotation_started', 'shot_1', 'shot_2', 'video')
 
+class LogRankingAdmin(admin.ModelAdmin):
+    list_display = ('video', 'annotation_round', 'when')
+
+class LogAnnotationAdmin(admin.ModelAdmin):
+    list_display = ('video', 'shot_1', 'shot_2', 'annotation_round', 'vote', 'when')
+
 admin.site.register(Video, VideoAdmin)
 admin.site.register(Shot, ShotAdmin)
 admin.site.register(ShotPair, ShotPairAdmin)
 admin.site.register(Annotator, AnnotatorAdmin)
 
+admin.site.register(LogAnnotation, LogAnnotationAdmin)
+admin.site.register(LogRanking, LogRankingAdmin)

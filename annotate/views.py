@@ -17,7 +17,7 @@
 # ------------------------------------------------------------------------------
 
 
-from annotate.models import Annotator, ShotPair
+from annotate.models import Annotator, ShotPair, LogAnnotation
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -184,9 +184,16 @@ def annotate(request):
                     LOG.error('Vote without selection!')
                     shot_pair.status = ShotPair.UNANNOTATED
                     raise Exception('Vote without selection!')
-                shot_pair.save()
 
+                log_ann = LogAnnotation(annotator=annotator,
+                                        video=video, shot_1=s1, shot_2=s2, 
+                                        vote=shot_pair.status, 
+                                        annotation_round=video.annotation_rounds,
+                                        when=timezone.now())
+
+                shot_pair.save()
                 annotator.save()
+                log_ann.save()
 
                 LOG.info('VOTE: %s [video #%d] %d:%s %d:%s %d', username, 
                          video.number, 

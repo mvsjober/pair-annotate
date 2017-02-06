@@ -101,3 +101,23 @@ class Annotator(models.Model):
     def __str__(self):
         return "Annotator: " + self.user.username
 
+#------------------------------------------------------------------------------
+
+class LogAnnotation(models.Model):
+    annotator = models.ForeignKey(Annotator)
+
+    video = models.ForeignKey(Video, related_name='+')
+    shot_1 = models.ForeignKey(Shot, related_name='+')
+    shot_2 = models.ForeignKey(Shot, related_name='+')
+
+    vote = models.IntegerField(default=ShotPair.UNANNOTATED)
+    annotation_round = models.IntegerField(default=0)
+    when = models.DateTimeField(null=True)
+
+#------------------------------------------------------------------------------
+
+class LogRanking(models.Model):
+    video = models.ForeignKey(Video, related_name='+')
+    annotation_round = models.IntegerField(default=0)
+    when = models.DateTimeField(null=True)
+    p_values = models.TextField(max_length=5000, default="", blank=True)
