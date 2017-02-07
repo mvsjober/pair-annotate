@@ -28,11 +28,11 @@ urlpatterns = [
     url(r'^' + app_path,
         include('annotate.urls', namespace='annotate')),
     # User account handling
-    url(r'^' + app_path + 'accounts/login/$',  login),
-    url(r'^' + app_path + 'accounts/logout/$', logout),
+    url(r'^' + app_path + 'accounts/login/$',  login, {'extra_context': {'modality': settings.MEDIAEVAL_MODALITY}}),
+    url(r'^' + app_path + 'accounts/logout/$', logout, {'extra_context': {'modality': settings.MEDIAEVAL_MODALITY}}),
     # admin
     url(r'^' + app_path + 'admin/', admin.site.urls),
     # social login
     url(r'^' + app_path,
-        include('social.apps.django_app.urls', namespace='social')),
+    include('social_django.urls', namespace='social')),
 ]

@@ -31,6 +31,6 @@
       <p><a href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Login with Twitter</a></p>
       <!-- <p><a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a></p> -->
       <hr />
-      <p><a href="/video/register/">Register a new account.</a></p>
+      <p><a href="/{{ modality }}/register/">Register a new account.</a></p>
 
 {% endblock %}
