@@ -26,5 +26,6 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^register/', views.register, name='register'),
     url(r'^register_external/', views.register_external, name='register_external'),
-    url(r'^annotate/', views.annotate, name='annotate')
+    url(r'^annotate/', views.annotate, name='annotate'),
+    url(r'^status/', views.status, name='status')
 ]

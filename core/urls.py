@@ -34,5 +34,5 @@ urlpatterns = [
     url(r'^' + app_path + 'admin/', admin.site.urls),
     # social login
     url(r'^' + app_path,
-    include('social_django.urls', namespace='social')),
+        include('social_django.urls', namespace='social')),
 ]

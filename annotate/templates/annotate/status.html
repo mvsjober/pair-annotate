@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title%}Annotate{% endblock %}
+
+{% block content%}
+
+{% load staticfiles %}
+      <h1>Annotation status</h1>
+
+      <p>Annotations logged to database since 7.2.2017: {{ annotation_count }}</p>
+
+      <table class="table table-condensed table-hover">
+        <tr>
+          <th>Video num</th>
+          <th>Status</th>
+          <th>Annotation round</th>
+          <th>Annotation progress</th>
+          <th>Pairs left</th>
+        </tr>
+        {% for num, v in video_stats.items %}
+        <tr {% if v.status != 'annotating' %}class="warning"{% endif %}>
+          <td>{{ num }}</td>
+          <td>{{ v.status }}</td>
+          <td>{{ v.doing_round }}</td>
+          <td>{{ v.pairs_done|floatformat:2 }}%</td>
+          <td>{{ v.pairs_unannotated }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+{% endblock %}

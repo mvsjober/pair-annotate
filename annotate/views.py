@@ -17,10 +17,10 @@
 # ------------------------------------------------------------------------------
 
 
-from annotate.models import Annotator, ShotPair, LogAnnotation
+from annotate.models import Video, Annotator, ShotPair, LogAnnotation
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -267,4 +267,34 @@ def annotate(request):
                       'shot2_id': shot2.id,
                       'pair_id': selected_pair.id,
                       'annotation_count': annotator.annotation_count
+                  })
+
+#------------------------------------------------------------------------------
+
+def is_organiser(user):
+    return user.is_superuser or user.groups.filter(name='organiser').exists()
+
+@login_required
+@user_passes_test(is_organiser)
+def status(request):
+    annotator = get_annotator(request.user)
+
+    video_stats = {}
+
+    for v in Video.objects.all():
+        pairs_tot = ShotPair.objects.filter(video=v).count()
+        pairs_unannotated = ShotPair.objects.filter(video=v, status=ShotPair.UNANNOTATED).count() + \
+                            ShotPair.objects.filter(video=v, status=ShotPair.RESERVED).count()
+        video_stats[v.number] = {
+            'status': ('annotating', 'calculating BTL')[v.status],
+            'doing_round': v.annotation_rounds+1,
+            'pairs_done': 100.0 * (pairs_tot-pairs_unannotated) / pairs_tot,
+            'pairs_unannotated': pairs_unannotated
+        }
+    
+    return render(request, 'annotate/status.html',
+                  {
+                      'modality': settings.MEDIAEVAL_MODALITY,
+                      'annotation_count': LogAnnotation.objects.count(),
+                      'video_stats': video_stats
                   })
