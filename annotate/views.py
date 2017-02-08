@@ -135,6 +135,37 @@ def index(request):
 
 #------------------------------------------------------------------------------
 
+def get_unannotated():
+    # Select a random pair to annotate
+    # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED)
+
+    # Uncomment for ugly hack mode
+    #round=5
+    #unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
+    #                                      video__annotation_rounds=round)
+    # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED, 
+    #                                       video__annotation_rounds__lte=4, 
+    #                                       video__number__gte=0, 
+    #                                       video__number__lte=24)
+    # count = len(unannotated)
+
+    # Uncomment for normal mode
+    count=0
+    
+    if count==0:
+        round=-1
+        while count==0 and round<20:
+            round += 1
+            unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
+                                                  video__annotation_rounds=round,
+                                                  video__number__gte=0, 
+                                                  video__number__lte=77)
+            count = len(unannotated)
+
+    return unannotated
+
+#------------------------------------------------------------------------------
+
 @login_required
 def annotate(request):
     if 'start' not in request.POST:
@@ -205,31 +236,8 @@ def annotate(request):
                      shot1_id, shot2_id)
 
 
-    # Select a random pair to annotate
-    # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED)
-
-    # Uncomment for ugly hack mode
-    #round=5
-    #unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
-    #                                      video__annotation_rounds=round)
-    # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED, 
-    #                                       video__annotation_rounds__lte=4, 
-    #                                       video__number__gte=0, 
-    #                                       video__number__lte=24)
-    # count = len(unannotated)
-
-    # Uncomment for normal mode
-    count=0
-    
-    if count==0:
-        round=-1
-        while count==0 and round<20:
-            round += 1
-            unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
-                                                  video__annotation_rounds=round,
-                                                  video__number__gte=0, 
-                                                  video__number__lte=77)
-            count = len(unannotated)
+    unannotated = get_unannotated()
+    count = len(unannotated)
 
     # if there are none, go to the waiting page
     if count == 0:
@@ -299,7 +307,7 @@ def status(request):
     return render(request, 'annotate/status.html',
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
-                      'annotation_count': LogAnnotation.objects.count(),
+                      'total_annotations': LogAnnotation.objects.count(),
                       'video_stats': video_stats,
                       'last_annotations': LogAnnotation.objects.order_by('-when')
                   })
@@ -312,6 +320,6 @@ def log(request):
     return render(request, 'annotate/log.html',
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
-                      'annotation_count': LogAnnotation.objects.count(),
+                      'total_annotations': LogAnnotation.objects.count(),
                       'last_annotations': LogAnnotation.objects.order_by('-when')
                   })
