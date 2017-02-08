@@ -14,6 +14,7 @@
       <table class="table table-condensed table-hover">
         <tr>
           <th>Time (UTC)</th>
+          <th>Annotator</th>
           <th>Video</th>
           <th>Annotation round</th>
           <th>Shot 1</th>
@@ -23,6 +24,7 @@
         {% for a in last_annotations|slice:":3" %}
         <tr>
           <td>{{ a.when }}</td>
+          <td>{{ a.annotator.user.username }}</td>
           <td>{{ a.video.number }}</td>
           <td>{{ a.annotation_round|add:1 }}</td>
           <td>{{ a.shot_1.number }}</td>
