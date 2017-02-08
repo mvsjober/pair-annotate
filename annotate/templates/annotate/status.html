@@ -9,6 +9,31 @@
 
       <p>Annotations logged to database since 7.2.2017: {{ annotation_count }}</p>
 
+      {% if last_annotations %}
+      <h2>Latest annotations</h2>
+      <table class="table table-condensed table-hover">
+        <tr>
+          <th>Time (UTC)</th>
+          <th>Video</th>
+          <th>Annotation round</th>
+          <th>Shot 1</th>
+          <th>Shot 2</th>
+          <th>Vote</th>
+        </tr>
+        {% for a in last_annotations|slice:":3" %}
+        <tr>
+          <td>{{ a.when }}</td>
+          <td>{{ a.video.number }}</td>
+          <td>{{ a.annotation_round|add:1 }}</td>
+          <td>{{ a.shot_1.number }}</td>
+          <td>{{ a.shot_2.number }}</td>
+          <td>{{ a.vote }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+
+      <h2>Annotations progress</h2>
       <table class="table table-condensed table-hover">
         <tr>
           <th>Video num</th>
@@ -26,5 +51,5 @@
           <td>{{ v.pairs_unannotated }}</td>
         </tr>
         {% endfor %}
-        </table>
+      </table>
 {% endblock %}

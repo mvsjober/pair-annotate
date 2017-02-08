@@ -114,6 +114,12 @@ class LogAnnotation(models.Model):
     annotation_round = models.IntegerField(default=0)
     when = models.DateTimeField(null=True)
 
+    def __str__(self):
+        return '{}: {}, video {} round {}: {} vs {} - vote {}'.format(
+            self.when,
+            self.annotator.user.username, self.video.number, self.annotation_round,
+            self.shot_1.number, self.shot_2.number, self.vote)
+
 #------------------------------------------------------------------------------
 
 class LogRanking(models.Model):

@@ -274,12 +274,16 @@ def annotate(request):
 def is_organiser(user):
     return user.is_superuser or user.groups.filter(name='organiser').exists()
 
+#------------------------------------------------------------------------------
+
 @login_required
 @user_passes_test(is_organiser)
 def status(request):
     annotator = get_annotator(request.user)
 
     video_stats = {}
+
+    last_annotations = LogAnnotation.objects.order_by('-when')
 
     for v in Video.objects.all():
         pairs_tot = ShotPair.objects.filter(video=v).count()
@@ -296,5 +300,6 @@ def status(request):
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
                       'annotation_count': LogAnnotation.objects.count(),
-                      'video_stats': video_stats
+                      'video_stats': video_stats,
+                      'last_annotations': last_annotations
                   })
