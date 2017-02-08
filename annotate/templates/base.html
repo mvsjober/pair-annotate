@@ -35,7 +35,7 @@
 	<!-- Collect the nav links, forms, and other content for toggling -->
 	<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 {% if user.is_authenticated %}
-	  <p class="navbar-brand"> <span class="text-success"><strong>Annotations done: {{ annotation_count }}</strong></span> - {{ user.username }} </p>
+	  <p class="navbar-brand"> {% if annotation_count %}<span class="text-success"><strong>Annotations done: {{ annotation_count }}</strong></span> - {% endif %}{{ user.username }} </p>
 {% endif %}
 	  <ul class="nav navbar-nav navbar-right">
 {% if user.is_authenticated %}
