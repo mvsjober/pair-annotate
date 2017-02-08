@@ -5,11 +5,10 @@
 {% block content%}
 
 {% load staticfiles %}
-      <h1>Annotation status</h1>
+      <h1>Annotation log</h1>
 
       <p>Annotations logged to database since 7.2.2017: {{ annotation_count }}</p>
 
-      {% if last_annotations %}
       <h2>Latest annotations</h2>
       <table class="table table-condensed table-hover">
         <tr>
@@ -21,7 +20,7 @@
           <th>Shot 2</th>
           <th>Vote</th>
         </tr>
-        {% for a in last_annotations|slice:":3" %}
+        {% for a in last_annotations|slice:":100" %}
         <tr>
           <td>{{ a.when }}</td>
           <td>{{ a.annotator.user.username }}</td>
@@ -33,26 +32,5 @@
         </tr>
         {% endfor %}
       </table>
-      <a href="/{{ modality }}/log/">See more</a>
-      {% endif %}
-
-      <h2>Annotations progress</h2>
-      <table class="table table-condensed table-hover">
-        <tr>
-          <th>Video num</th>
-          <th>Status</th>
-          <th>Annotation round</th>
-          <th>Annotation progress</th>
-          <th>Pairs left</th>
-        </tr>
-        {% for num, v in video_stats.items %}
-        <tr {% if v.status != 'annotating' %}class="warning"{% endif %}>
-          <td>{{ num }}</td>
-          <td>{{ v.status }}</td>
-          <td>{{ v.doing_round }}</td>
-          <td>{{ v.pairs_done|floatformat:2 }}%</td>
-          <td>{{ v.pairs_unannotated }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+      <a href="/{{ modality }}/status/">Back to overall status</a>
 {% endblock %}

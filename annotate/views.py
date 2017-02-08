@@ -283,8 +283,6 @@ def status(request):
 
     video_stats = {}
 
-    last_annotations = LogAnnotation.objects.order_by('-when')
-
     for v in Video.objects.all():
         pairs_tot = ShotPair.objects.filter(video=v).count()
         pairs_unannotated = ShotPair.objects.filter(video=v, status=ShotPair.UNANNOTATED).count() + \
@@ -301,5 +299,17 @@ def status(request):
                       'modality': settings.MEDIAEVAL_MODALITY,
                       'annotation_count': LogAnnotation.objects.count(),
                       'video_stats': video_stats,
-                      'last_annotations': last_annotations
+                      'last_annotations': LogAnnotation.objects.order_by('-when')
+                  })
+
+#------------------------------------------------------------------------------
+
+@login_required
+@user_passes_test(is_organiser)
+def log(request):
+    return render(request, 'annotate/log.html',
+                  {
+                      'modality': settings.MEDIAEVAL_MODALITY,
+                      'annotation_count': LogAnnotation.objects.count(),
+                      'last_annotations': LogAnnotation.objects.order_by('-when')
                   })
