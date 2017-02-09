@@ -7,7 +7,13 @@
 {% load staticfiles %}
       <h1>Annotation status</h1>
 
-      <p>Annotations logged to database since 7.2.2017: {{ total_annotations }}</p>
+      <p>Annotations logged to database since new logging started: <b>{{ total_annotations }}</b></p>
+
+      <p>Number of shot pairs in queue: <b>{{ queue_size }}</b></p>
+
+      <p>Round ongoing: <b>{{ queue_round }}</b></p>
+
+      <p>Videos with shots in queue: <b>{{ queue_videos }}</b></p>
 
       {% if last_annotations %}
       <h2>Latest annotations</h2>

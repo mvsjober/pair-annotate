@@ -33,6 +33,8 @@ import logging
 import os
 import random
 
+from itertools import groupby, count
+
 #------------------------------------------------------------------------------
 
 LOG = logging.getLogger(__name__)
@@ -152,8 +154,8 @@ def get_unannotated():
     # Uncomment for normal mode
     count=0
     
+    round=-1
     if count==0:
-        round=-1
         while count==0 and round<20:
             round += 1
             unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
@@ -162,7 +164,7 @@ def get_unannotated():
                                                   video__number__lte=77)
             count = len(unannotated)
 
-    return unannotated
+    return (unannotated, round)
 
 #------------------------------------------------------------------------------
 
@@ -236,7 +238,7 @@ def annotate(request):
                      shot1_id, shot2_id)
 
 
-    unannotated = get_unannotated()
+    unannotated, round = get_unannotated()
     count = len(unannotated)
 
     # if there are none, go to the waiting page
@@ -286,6 +288,17 @@ def is_organiser(user):
 
 #------------------------------------------------------------------------------
 
+# From here:
+# http://codereview.stackexchange.com/questions/5196/grouping-consecutive-numbers-into-ranges-in-python-3-2
+
+def as_range(iterable):
+    l = list(iterable)
+    if len(l) > 1:
+        return '{0}-{1}'.format(l[0], l[-1])
+    else:
+        return '{0}'.format(l[0])
+#------------------------------------------------------------------------------
+
 @login_required
 @user_passes_test(is_organiser)
 def status(request):
@@ -303,13 +316,22 @@ def status(request):
             'pairs_done': 100.0 * (pairs_tot-pairs_unannotated) / pairs_tot,
             'pairs_unannotated': pairs_unannotated
         }
-    
+
+    unannotated, round = get_unannotated()
+
+    vnums = sorted(unannotated.values_list('video__number', flat=True).distinct())
+
+    rangestr = ', '.join(as_range(g) for _, g in groupby(vnums, key=lambda n, c=count(): n-next(c)))
+
     return render(request, 'annotate/status.html',
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
                       'total_annotations': LogAnnotation.objects.count(),
                       'video_stats': video_stats,
-                      'last_annotations': LogAnnotation.objects.order_by('-when')
+                      'last_annotations': LogAnnotation.objects.order_by('-when'),
+                      'queue_round': round+1,
+                      'queue_videos': rangestr,
+                      'queue_size': len(unannotated)
                   })
 
 #------------------------------------------------------------------------------
