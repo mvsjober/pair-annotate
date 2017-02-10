@@ -155,10 +155,9 @@ LOGGING = {
     'handlers': {
         'logfile': {
             'level':'DEBUG',
-            'class':'logging.handlers.RotatingFileHandler',
+            'class':'logging.handlers.TimedRotatingFileHandler',
             'filename': 'logs/annotate.log',
-            'maxBytes': 1024*1024*5, # 5 MB
-            'backupCount': 5,
+            'when': 'W6',
             'formatter':'standard',
         },  
         'console': {
