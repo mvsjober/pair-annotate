@@ -142,26 +142,26 @@ def get_unannotated():
     # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED)
 
     # Uncomment for ugly hack mode
-    #round=5
-    #unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
-    #                                      video__annotation_rounds=round)
+    round=6
+    unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
+                                          video__annotation_rounds=round)
     # unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED, 
     #                                       video__annotation_rounds__lte=4, 
     #                                       video__number__gte=0, 
     #                                       video__number__lte=24)
-    # count = len(unannotated)
+    count = len(unannotated)
 
     # Uncomment for normal mode
-    count=0
+    #count=0
     
-    round=-1
     if count==0:
+        round=-1
         while count==0 and round<20:
             round += 1
             unannotated = ShotPair.objects.filter(status=ShotPair.UNANNOTATED,
-                                                  video__annotation_rounds=round,
-                                                  video__number__gte=0, 
-                                                  video__number__lte=77)
+                                                  video__annotation_rounds=round) #,
+                                                  #video__number__gte=0, 
+                                                  #video__number__lte=77)
             count = len(unannotated)
 
     return (unannotated, round)
