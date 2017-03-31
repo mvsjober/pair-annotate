@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title%}Annotate{% endblock %}
+
+{% block content%}
+
+{% load staticfiles %}
+      <h1>Annotators</h1>
+
+      <p>Annotators who have annotated since {{ since }}.</p>
+
+      <table class="table table-condensed table-hover">
+        <tr>
+          <th>Annotator</th>
+          <th>Number of annotations</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Country</th>
+        </tr>
+        {% for a in annotators %}
+        <tr>
+          <td>{{ a.user.username }}</td>
+          <td>{{ a.num_logged }}</td>
+          <td>{{ a.age }}</td>
+          <td>{{ a.gender }}</td>
+          <td>{{ a.country }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <a href="/{{ modality }}/status/">Back to overall status</a>
+{% endblock %}
