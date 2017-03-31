@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATA_DIR=data
+DATA_DIR=/wrk/mvsjober/interest-data/
 
 find $DATA_DIR -name 'm-*.txt' | while read FNAME
 do
@@ -16,13 +16,13 @@ do
                 echo "DONE (just now)"
                 rm $INRUN
             else
-                echo "**ERROR** inrun and p_now but JobState=$JOBSTATE"
+                echo "**ERROR** inrun and p_new but JobState=$JOBSTATE"
             fi
         else # inrun but not p_new
             if [ "$JOBSTATE" == "RUNNING" ]; then
                 echo "RUNNING"
             else
-                echo "**ERROR** inrun, but no p_now and JobState=$JOBSTATE"
+                echo "**ERROR** inrun, but no p_new and JobState=$JOBSTATE"
             fi
         fi
     else
@@ -40,17 +40,3 @@ do
         fi
     fi
 done
-
-# - rsync from shell
-# - foreach video, image:
-#     foreach m-*.txt:
-#       check if .inrun exists
-#       check if p_new exists
-#       if neither:
-#          touch .inrun - incl slurm id :-)
-#          sbatch run
-#       if exists and p_new exists:
-#          rm .inrun
-
-#       check sync slurmid?
-#       sbatch btl_sbatch.sh m-13.txt
