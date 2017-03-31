@@ -28,6 +28,7 @@ from django.forms import ModelForm
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils import timezone
+from django.db.models import Count, Case, When, IntegerField
 
 import logging
 import os
@@ -344,4 +345,25 @@ def log(request):
                       'modality': settings.MEDIAEVAL_MODALITY,
                       'total_annotations': LogAnnotation.objects.count(),
                       'last_annotations': LogAnnotation.objects.order_by('-when')
+                  })
+
+#------------------------------------------------------------------------------
+
+@login_required
+@user_passes_test(is_organiser)
+def annotators(request):
+    if 'since' in request.GET:
+        since = request.GET['since']
+        ct = Count(Case(When(logannotation__when__gt=since, then=1), output_field=IntegerField()))
+    else:
+        since = '2017-02-07'
+        ct = Count('logannotation')
+        
+    anns = Annotator.objects.annotate(num_logged=ct).filter(num_logged__gt=0).order_by('-num_logged')
+
+    return render(request, 'annotate/status_annotators.html',
+                  {
+                      'modality': settings.MEDIAEVAL_MODALITY,
+                      'since': since,
+                      'annotators': anns
                   })

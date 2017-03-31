@@ -15,6 +15,8 @@
 
       <p>Videos with shots in queue: <b>{{ queue_videos }}</b></p>
 
+      <p><a href="/{{ modality }}/status/annotators/">List of annotators</a></p>
+
       {% if last_annotations %}
       <h2>Latest annotations</h2>
       <table class="table table-condensed table-hover">
@@ -39,7 +41,8 @@
         </tr>
         {% endfor %}
       </table>
-      <a href="/{{ modality }}/log/">See more</a>
+      <a href="/{{ modality }}/status/log/">See more</a>
+
       {% endif %}
 
       <h2>Annotations progress</h2>
