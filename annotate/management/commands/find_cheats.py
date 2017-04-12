@@ -30,7 +30,7 @@ class Command(BaseCommand):
     def _find_cheats(self):
         for annotator in Annotator.objects.all():
             name = annotator.user.username
-            logs = LogAnnotation.objects.filter(annotator=annotator)
+            logs = LogAnnotation.objects.filter(annotator=annotator, annotation_round=6).order_by('-when')
             vc = [0, 0]
             for log in logs:
                 vote = log.vote

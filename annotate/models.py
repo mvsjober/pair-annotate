@@ -114,6 +114,8 @@ class LogAnnotation(models.Model):
     annotation_round = models.IntegerField(default=0)
     when = models.DateTimeField(null=True)
 
+    cheat = models.BooleanField(default=False)
+
     def __str__(self):
         return '{}: {}, video {} round {}: {} vs {} - vote {}'.format(
             self.when,

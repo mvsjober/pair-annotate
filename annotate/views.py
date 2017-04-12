@@ -28,7 +28,7 @@ from django.forms import ModelForm
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils import timezone
-from django.db.models import Count, Case, When, IntegerField
+from django.db.models import Count, Case, When, IntegerField, Q
 
 import logging
 import os
@@ -132,8 +132,10 @@ def index(request):
     if annotator is None:
         return HttpResponseRedirect(reverse('annotate:register_external'))
 
+    annotation_count = LogAnnotation.objects.filter(annotator=annotator, cheat=False).count()
+    
     return render(request, 'annotate/index.html', 
-                  { 'annotation_count': annotator.annotation_count,
+                  { 'annotation_count': annotation_count,
                     'modality': settings.MEDIAEVAL_MODALITY})
 
 #------------------------------------------------------------------------------
@@ -269,6 +271,8 @@ def annotate(request):
     shot2video = basepath + '/movies/' + shot2.filename
     shot2image = basepath + '/images/midframe/' + shot2.image_filename
 
+    annotation_count = LogAnnotation.objects.filter(annotator=annotator, cheat=False).count()
+    
     return render(request, 'annotate/annotate.html',
                   { 
                       'modality': settings.MEDIAEVAL_MODALITY,
@@ -279,7 +283,7 @@ def annotate(request):
                       'shot1_id': shot1.id,
                       'shot2_id': shot2.id,
                       'pair_id': selected_pair.id,
-                      'annotation_count': annotator.annotation_count
+                      'annotation_count': annotation_count
                   })
 
 #------------------------------------------------------------------------------
@@ -324,13 +328,17 @@ def status(request):
 
     rangestr = ', '.join(as_range(g) for _, g in groupby(vnums, key=lambda n, c=count(): n-next(c)))
 
+    queue_round = round+1
+    if len(unannotated):
+        queue_round = "-"
+
     return render(request, 'annotate/status.html',
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
-                      'total_annotations': LogAnnotation.objects.count(),
+                      'total_annotations': LogAnnotation.objects.filter(cheat=False).count(),
                       'video_stats': video_stats,
                       'last_annotations': LogAnnotation.objects.order_by('-when'),
-                      'queue_round': round+1,
+                      'queue_round': queue_round,
                       'queue_videos': rangestr,
                       'queue_size': len(unannotated)
                   })
@@ -343,7 +351,7 @@ def log(request):
     return render(request, 'annotate/log.html',
                   {
                       'modality': settings.MEDIAEVAL_MODALITY,
-                      'total_annotations': LogAnnotation.objects.count(),
+                      'total_annotations': LogAnnotation.objects.filter(cheat=False).count(),
                       'last_annotations': LogAnnotation.objects.order_by('-when')
                   })
 
@@ -354,10 +362,12 @@ def log(request):
 def annotators(request):
     if 'since' in request.GET:
         since = request.GET['since']
-        ct = Count(Case(When(logannotation__when__gt=since, then=1), output_field=IntegerField()))
+        ct = Count(Case(When(Q(logannotation__when__gt=since) & Q(logannotation__cheat=False), then=1), output_field=IntegerField()))
+        #ct = Count(Case(When(logannotation__when__gt=since, then=1), output_field=IntegerField()))
     else:
         since = '2017-02-07'
-        ct = Count('logannotation')
+        ct = Count(Case(When(logannotation__cheat=False, then=1), output_field=IntegerField()))
+        #ct = Count('logannotation')
         
     anns = Annotator.objects.annotate(num_logged=ct).filter(num_logged__gt=0).order_by('-num_logged')
 
