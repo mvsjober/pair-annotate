@@ -329,7 +329,7 @@ def status(request):
     rangestr = ', '.join(as_range(g) for _, g in groupby(vnums, key=lambda n, c=count(): n-next(c)))
 
     queue_round = round+1
-    if len(unannotated):
+    if len(unannotated) == 0:
         queue_round = "-"
 
     return render(request, 'annotate/status.html',
