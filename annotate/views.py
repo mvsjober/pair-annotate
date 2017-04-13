@@ -138,6 +138,31 @@ def index(request):
                   { 'annotation_count': annotation_count,
                     'modality': settings.MEDIAEVAL_MODALITY})
 
+
+#------------------------------------------------------------------------------
+
+def cheat(request):
+    return render(request, 'annotate/cheat.html', 
+                  { 'modality': settings.MEDIAEVAL_MODALITY})
+
+#------------------------------------------------------------------------------
+
+def kick_out(username):
+    from django.contrib.sessions.models import Session
+    from django.contrib.auth.models import User
+
+    user = User.objects.get(username=username)
+    print(user, username, user.id)
+
+    for s in Session.objects.all():
+        if str(s.get_decoded().get('_auth_user_id')) == str(user.id):
+            s.delete()
+
+    # [s.delete() for s in Session.objects.all() if s.get_decoded().get('_auth_user_id') == user.id]
+
+    return HttpResponseRedirect(reverse('annotate:cheat'))
+
+
 #------------------------------------------------------------------------------
 
 def get_unannotated():
@@ -221,21 +246,44 @@ def annotate(request):
                     shot_pair.status = ShotPair.UNANNOTATED
                     raise Exception('Vote without selection!')
 
+                cur_time = timezone.now()
                 log_ann = LogAnnotation(annotator=annotator,
                                         video=video, shot_1=s1, shot_2=s2, 
                                         vote=shot_pair.status, 
                                         annotation_round=video.annotation_rounds,
-                                        when=timezone.now())
+                                        when=cur_time)
 
                 shot_pair.save()
                 annotator.save()
                 log_ann.save()
 
+                back_log_n = 20
+                time_diff_check = 2.0*back_log_n
                 LOG.info('VOTE: %s [video #%d] %d:%s %d:%s %d', username, 
                          video.number, 
                          s1.number, s1.filename, 
                          s2.number, s2.filename,
                          shot_pair.status)
+                
+                prev_logs = LogAnnotation.objects.filter(annotator=annotator).order_by('-when')[:back_log_n]
+
+                if len(prev_logs) == back_log_n:
+                    for l in prev_logs:
+                        print(l)
+                    lasti = back_log_n-1
+                    tdiff = (cur_time-prev_logs[lasti].when).total_seconds()
+                    if tdiff <= time_diff_check:
+                        first_vote = prev_logs[lasti].vote
+                        all_same = True
+                        for i in range(lasti):
+                            if prev_logs[i].vote != first_vote:
+                                all_same = False
+                                break
+
+                        if all_same:
+                            LOG.warn("Kicking out possible cheater: voted %d times the same in %d seconds.", back_log_n, tdiff)
+                            return kick_out(annotator.user.username)
+                    
         else:
             LOG.warn('Discarded old expired vote: %s, %d vs %d', username,
                      shot1_id, shot2_id)
