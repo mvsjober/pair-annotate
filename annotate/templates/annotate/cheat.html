@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title%}Annotate{% endblock %}
+
+{% block content%}
+
+{% load staticfiles %}
+
+<div class="jumbotron">
+  <h2>What happened ???</h2>
+  <p>Unfortunately some annotators have been cheating and just clicking randomly instead of actually judging the interestingness. We have detected similiar behaviour from you and have logged you out, just to be sure. <b>This incident has been reported to the organisers.</b></p>
+  <p>Once you are ready to continue you can log in again.</p>
+  <br/>
+  <form action="{% url 'annotate:index' %}" method="POST">
+  {% csrf_token %}
+  <input id="login" class="btn btn-primary btn-lg" type="submit"
+         name="login" value="Login" />
+</form>
+
+</div>
+{% endblock %}
