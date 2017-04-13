@@ -29,6 +29,7 @@ from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Count, Case, When, IntegerField, Q
+from django.core.mail import send_mail
 
 import logging
 import os
@@ -158,7 +159,10 @@ def kick_out(username):
         if str(s.get_decoded().get('_auth_user_id')) == str(user.id):
             s.delete()
 
-    # [s.delete() for s in Session.objects.all() if s.get_decoded().get('_auth_user_id') == user.id]
+    send_mail('Kicked out {} from {}'.format(username, settings.MEDIAEVAL_MODALITY), 
+              'For potential annotation cheating.', 
+              'root@eye.hiit.fi', ['mats.sjoberg@helsinki.fi'], 
+              fail_silently=False)
 
     return HttpResponseRedirect(reverse('annotate:cheat'))
 
