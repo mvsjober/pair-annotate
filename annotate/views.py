@@ -261,8 +261,8 @@ def annotate(request):
                 annotator.save()
                 log_ann.save()
 
-                back_log_n = 20
-                time_diff_check = 2.0*back_log_n
+                back_log_n = 40
+                time_diff_check = 90
                 LOG.info('VOTE: %s [video #%d] %d:%s %d:%s %d', username, 
                          video.number, 
                          s1.number, s1.filename, 
@@ -285,7 +285,7 @@ def annotate(request):
                                 break
 
                         if all_same:
-                            LOG.warn("Kicking out possible cheater: voted %d times the same in %d seconds.", back_log_n, tdiff)
+                            LOG.warn("Kicking out possible cheater: %s voted %d times the same in %d seconds.", username, back_log_n, tdiff)
                             return kick_out(annotator.user.username)
                     
         else:
