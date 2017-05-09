@@ -15,6 +15,8 @@
 
       <p>Videos with shots in queue: <b>{{ queue_videos }}</b></p>
 
+      <p>Total number of annotations left to reach target round {{ target_round }}: <b>{{ tot_annot_left }}</b></p>
+      
       <p><a href="/{{ modality }}/status/annotators/">List of annotators</a></p>
 
       {% if last_annotations %}
@@ -53,6 +55,7 @@
           <th>Annotation round</th>
           <th>Annotation progress</th>
           <th>Pairs left</th>
+          <th>Pairs left to target round {{ target_round }}</th>
         </tr>
         {% for num, v in video_stats.items %}
         <tr {% if v.status != 'annotating' %}class="warning"{% endif %}>
@@ -61,6 +64,7 @@
           <td>{{ v.doing_round }}</td>
           <td>{{ v.pairs_done|floatformat:2 }}%</td>
           <td>{{ v.pairs_unannotated }}</td>
+          <td>{{ v.annot_left }}</td>
         </tr>
         {% endfor %}
       </table>

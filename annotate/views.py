@@ -17,7 +17,7 @@
 # ------------------------------------------------------------------------------
 
 
-from annotate.models import Video, Annotator, ShotPair, LogAnnotation
+from annotate.models import Video, Annotator, ShotPair, LogAnnotation, Shot
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -32,6 +32,7 @@ from django.db.models import Count, Case, When, IntegerField, Q
 from django.core.mail import send_mail
 
 import logging
+import math
 import os
 import random
 
@@ -363,15 +364,27 @@ def status(request):
 
     video_stats = {}
 
+    target_round = 7
+    tot_annot_left = 0
+    
     for v in Video.objects.all():
         pairs_tot = ShotPair.objects.filter(video=v).count()
         pairs_unannotated = ShotPair.objects.filter(video=v, status=ShotPair.UNANNOTATED).count() + \
                             ShotPair.objects.filter(video=v, status=ShotPair.RESERVED).count()
+        rounds_left = target_round-v.annotation_rounds
+        annot_left = 0
+        if rounds_left > 0:
+            t = Shot.objects.filter(video=v).count()
+            annot_per_round = int(t*(math.sqrt(t)-1))
+            annot_left = (rounds_left-1)*annot_per_round + pairs_unannotated
+        print(v.number, rounds_left, pairs_unannotated, annot_left)
+        tot_annot_left += annot_left
         video_stats[v.number] = {
             'status': ('annotating', 'calculating BTL')[v.status],
             'doing_round': v.annotation_rounds+1,
             'pairs_done': 100.0 * (pairs_tot-pairs_unannotated) / pairs_tot,
-            'pairs_unannotated': pairs_unannotated
+            'pairs_unannotated': pairs_unannotated,
+            'annot_left': annot_left
         }
 
     unannotated, round = get_unannotated()
@@ -392,7 +405,9 @@ def status(request):
                       'last_annotations': LogAnnotation.objects.order_by('-when'),
                       'queue_round': queue_round,
                       'queue_videos': rangestr,
-                      'queue_size': len(unannotated)
+                      'queue_size': len(unannotated),
+                      'tot_annot_left': tot_annot_left,
+                      'target_round': target_round+1
                   })
 
 #------------------------------------------------------------------------------
