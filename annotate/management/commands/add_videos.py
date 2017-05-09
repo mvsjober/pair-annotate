@@ -31,16 +31,90 @@ class Command(BaseCommand):
     args = ''
     help = 'Add videos, including shots, and initial random pair comparisons'
 
-    def _create_videos_and_shots(self):
+    def _add_video(self, video_num, fullpath, image_subpath='midframe'):
         video_path = settings.VIDEO_PATH
-
-        print('Generating videos and shots from', video_path)
-
-        video_num = 0
 
         links_path = os.path.join(video_path, 'links') 
         if not os.path.isdir(links_path):
             os.mkdir(links_path)
+
+        linkname = "video_{}".format(video_num)
+        link_path = os.path.join(links_path, linkname)
+
+        if os.path.islink(link_path):
+          os.remove(link_path)
+        os.symlink(fullpath, link_path)
+
+        filename = os.path.basename(fullpath)
+
+        # Create video
+        video = Video(filename=linkname, number=video_num)
+        video.save()
+        print('Created video row for "{}" -> "{}" with id {}'.
+              format(linkname, filename, video.id))
+
+        video_num += 1
+
+        # Compile a dictionary of shots keyed by their starting frame
+        shots = {}
+        shot_path = os.path.join(fullpath, 'movies')
+        for shot_filename in os.listdir(shot_path):
+            start_frame = int(shot_filename.split('-')[0])
+            assert(start_frame not in shots)
+            shots[start_frame] = shot_filename
+
+        ns = len(shots)
+        s = int(np.sqrt(ns))
+        # s = 3
+
+        t = s*s
+        diff = ns-t
+        if diff != 0:
+            print('Truncating number of shots: {} - {} = {} = {}².'.format(ns, diff, t, s))
+        else:
+            print('No truncation needed, since {} = {}².'.format(ns, s))
+
+        shot_num = 0
+        print('Creating rows for shots:', end=' ')
+        for start_frame in sorted(shots.keys())[:t]:
+            shot_filename = shots[start_frame]
+            shot_fullpath = os.path.join(shot_path, shot_filename)
+
+            # skip non-files
+            if not os.path.isfile(shot_fullpath):
+                continue
+
+            # skips files that don't look like mp4 videos
+            if os.path.splitext(shot_filename)[1] != '.mp4':
+                print('Skipping {}, since it does not end with .mp4.'.
+                      format(shot_filename))
+                continue
+
+            globglob = os.path.join(link_path, 'images', image_subpath, '*' + 
+                                   os.path.splitext(shot_filename)[0] + '.jpg')
+            image_path = glob.glob(globglob)
+            if len(image_path) != 1:
+                print('WARNING!!! Image not found for: ' + linkname + ' ' + 
+                      shot_filename)
+                print('Used glob:', globglob)
+                image_filename = ''
+                return
+            else:
+                image_filename = os.path.basename(image_path[0])
+
+            shot = Shot(video=video, filename=shot_filename,
+                        image_filename=image_filename,
+                        number=shot_num)
+            shot.save()
+            print('.', end='', flush=True)
+            shot_num += 1
+
+
+    def _create_videos_and_shots(self):
+        video_path = settings.VIDEO_PATH
+        print('Generating videos and shots from', video_path)
+
+        video_num = 0
 
         # Find all videos by listing the directories in video_path
         for filename in os.listdir(video_path):
@@ -53,85 +127,37 @@ class Command(BaseCommand):
 #            if video_num not in range(0,26):
 #            if video_num not in range(26,52):
 #            if video_num not in range(52,78):
-            if video_num not in range(78,104):
+#            if video_num not in range(78,104):
+            if video_num not in range(104,108):
                 print("Skipping", video_num, "...")
                 video_num += 1
                 continue
 
-            linkname = "video_{}".format(video_num)
-            link_path = os.path.join(links_path, linkname)
-  
-            if os.path.islink(link_path):
-              os.remove(link_path)
-            os.symlink(fullpath, link_path)
-
-            # Create video
-            video = Video(filename=linkname, number=video_num)
-            video.save()
-            print('Created video row for "{}" -> "{}" with id {}'.
-                  format(linkname, filename, video.id))
-
-            video_num += 1
-        
-            # Compile a dictionary of shots keyed by their starting frame
-            shots = {}
-            shot_path = os.path.join(fullpath, 'movies')
-            for shot_filename in os.listdir(shot_path):
-                start_frame = int(shot_filename.split('-')[0])
-                assert(start_frame not in shots)
-                shots[start_frame] = shot_filename
-
-            ns = len(shots)
-            s = int(np.sqrt(ns))
-            # s = 3
-
-            t = s*s
-            diff = ns-t
-            if diff != 0:
-                print('Truncating number of shots: {} - {} = {} = {}².'.format(ns, diff, t, s))
-            else:
-                print('No truncation needed, since {} = {}².'.format(ns, s))
-
-            shot_num = 0
-            print('Creating rows for shots:', end=' ')
-            for start_frame in sorted(shots.keys())[:t]:
-                shot_filename = shots[start_frame]
-                shot_fullpath = os.path.join(shot_path, shot_filename)
-
-                # skip non-files
-                if not os.path.isfile(shot_fullpath):
-                    continue
-                
-                # skips files that don't look like mp4 videos
-                if os.path.splitext(shot_filename)[1] != '.mp4':
-                    print('Skipping {}, since it does not end with .mp4.'.
-                          format(shot_filename))
-                    continue
-
-                image_path = glob.glob(link_path + '/images/midframe/* (' + 
-                                       os.path.splitext(shot_filename)[0] + 
-                                       ').jpg')
-                if len(image_path) != 1:
-                    print('WARNING!!! Image not found for: ' + linkname + ' ' + 
-                          shot_filename)
-                    image_filename = ''
-                    return
-                else:
-                    image_filename = os.path.basename(image_path[0])
-                
-                shot = Shot(video=video, filename=shot_filename,
-                            image_filename=image_filename,
-                            number=shot_num)
-                shot.save()
-                print('.', end='', flush=True)
-                shot_num += 1
+            self._add_video(video_num, fullpath)
 
             print()
 
+    def _create_videos_and_shots_from_list(self):
+        videos_to_add = [
+            (104, 'Decay_extract_25fps'),
+            (105, 'Fitz_extract_25fps'),
+            (106, 'ToS-4K-1920_25fps'),
+            (107, 'Valkaama_extract')
+        ]
+
+        video_path = settings.VIDEO_PATH
+        print('Generating videos and shots from list', videos_to_add)
+
+        for video_num, filename in videos_to_add:
+            fullpath = os.path.join(video_path, filename)
+            self._add_video(video_num, fullpath, '')
+
+            print()
+            
     def _create_initial_random_pairs(self):
         # For each video ...
         for video in Video.objects.all():
-            if video.number not in range(78,104):
+            if video.number not in range(104,108):
                 continue
 
             print('Generating random comparison pairs for video "{}"'.format(video.filename), end=' ')
@@ -172,5 +198,6 @@ class Command(BaseCommand):
             print()
 
     def handle(self, *args, **options):
-        self._create_videos_and_shots()
+        #self._create_videos_and_shots()
+        self._create_videos_and_shots_from_list()
         self._create_initial_random_pairs()
