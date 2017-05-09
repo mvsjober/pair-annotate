@@ -31,13 +31,13 @@ class Command(BaseCommand):
         sum_to_remove = 0
         for annotator in Annotator.objects.all():
             name = annotator.user.username
-            # logs = LogAnnotation.objects.filter(annotator=annotator, annotation_round=7,
-            #                                     video__number__gte=0, 
-            #                                     video__number__lte=77).order_by('-when')
+            logs = LogAnnotation.objects.filter(annotator=annotator, annotation_round=7,
+                                                video__number__gte=0, 
+                                                video__number__lte=77).order_by('-when')
 
-            logs = LogAnnotation.objects.filter(annotator=annotator, annotation_round=3,
-                                                video__number__gte=78, 
-                                                video__number__lte=103).order_by('-when')
+            #logs = LogAnnotation.objects.filter(annotator=annotator, annotation_round=3,
+            #                                    video__number__gte=78, 
+            #                                    video__number__lte=103).order_by('-when')
             
             current_logs = []
             current_same = 1
